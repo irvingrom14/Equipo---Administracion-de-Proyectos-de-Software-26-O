@@ -1,0 +1,12 @@
+import fs from 'node:fs';import assert from 'node:assert/strict';import vm from 'node:vm';
+const root=new URL('./',import.meta.url),source=fs.readFileSync(new URL('app.js',root),'utf8');
+const validateSource=source.slice(source.indexOf('function validateCampus(d){'),source.indexOf('async function saveEditorChanges(',source.indexOf('function validateCampus(d){')));
+const sandbox={};vm.createContext(sandbox);vm.runInContext(validateSource,sandbox);
+const saved=JSON.parse(fs.readFileSync(new URL('campus_editado.json',root)));assert.equal(sandbox.validateCampus(saved).version,8);
+for(const change of [{elementEdits:{flag_COSEI:{offsetX:NaN}}},{extraParking:[{id:'bad',rect:[0,0,4,4]}]},{parking:[[0,0,-2,4]]}])assert.throws(()=>sandbox.validateCampus({...saved,...change}));
+const bytes=fs.readFileSync(new URL('UAM_Azcapotzalco.glb',root)),gltf=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)).toString());
+const ids=gltf.nodes.filter(n=>n.extras?.editableId).map(n=>n.extras.editableId);assert.equal(new Set(ids).size,ids.length,'IDs editables repetidos');assert.ok(ids.includes('flag_COSEI'));assert.ok(ids.includes('sculpture_G'));assert.ok(ids.filter(id=>id.startsWith('tree_')).length>100);assert.equal(ids.filter(id=>id.startsWith('parking_')).length,saved.parking.length+(saved.extraParking?.length||0));
+assert.ok(!gltf.nodes.some(n=>['Selección_editor','Vista_previa_estacionamiento'].includes(n.name)),'Herramientas incluidas en el GLB');
+const flag=gltf.nodes.find(n=>n.name==='Asta_bandera_COSEI'),offset=saved.elementEdits?.flag_COSEI||{},expected=(saved.cosei.flag.position[0]-895)*saved.metersPerPixel+(offset.offsetX||0);assert.ok(Math.abs((flag.matrix?.[12]??flag.translation?.[0]??0)-expected)<1e-4,'Posición de bandera no coincide con datos');
+assert.ok(!(saved.extraParking||[]).length,'Quedó estacionamiento de prueba');assert.deepEqual(saved.removedElements||[],[],'Quedaron elementos retirados de prueba');assert.deepEqual(saved.elementEdits||{},{} ,'Quedaron movimientos de prueba');
+console.log('Editor verificado: datos válidos, rechaza posiciones inválidas; IDs únicos, elementos exportables y sin controles en GLB. No quedan cambios de prueba.');

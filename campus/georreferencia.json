@@ -1,0 +1,19 @@
+{
+  "descripcion": "Coloca plano_2d.png sobre el mapa real. Esquinas del PNG en grados [latitud, longitud]. Ajuste por mínimos cuadrados con 10 edificios (H, L, G, C, B, D, P1, P3, M, R) sobre la imagen satelital de Esri (17 oct 2026); error típico ~6 m.",
+  "plano": "plano_2d.png",
+  "ancho": 1560,
+  "alto": 640,
+  "superiorIzquierda": [
+    19.5010857,
+    -99.1835711
+  ],
+  "superiorDerecha": [
+    19.5023227,
+    -99.1915629
+  ],
+  "inferiorIzquierda": [
+    19.5041762,
+    -99.1830327
+  ],
+  "metrosPorUnidad": 1.0895
+}

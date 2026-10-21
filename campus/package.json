@@ -1,0 +1,1 @@
+{"name":"modelo-uam-azcapotzalco","private":true,"type":"module","scripts":{"start":"node server.mjs","build":"node build.mjs"}}
